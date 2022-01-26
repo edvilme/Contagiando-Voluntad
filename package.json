@@ -18,6 +18,9 @@
   },
   "homepage": "https://github.com/edvilme/Contagiando-Voluntad#readme",
   "dependencies": {
-    "express": "^4.17.2"
+    "express": "^4.17.2",
+    "mysql": "^2.18.1",
+    "passport": "^0.5.2",
+    "passport-local": "^1.0.0"
   }
 }
