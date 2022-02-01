@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model campaign {
+  campaign_id             Int        @id
+  name                    String     @db.VarChar(100)
+  description             String     @db.Text
+  year                    Int        @default(2022)
+  badge_picture_url       String     @db.VarChar(200)
+  promotional_picture_url String     @db.VarChar(200)
+  created_by_user_id      Int
+  donation                donation[]
+  invite                  invite[]
+
+  @@index([created_by_user_id], map: "fk_campaign_admin")
+}
+
+model donation {
+  donation_id           Int      @id @default(autoincrement())
+  reffered_by_invite_id Int
+  donor_id              Int
+  campaign_id           Int
+  date                  DateTime @default(now()) @db.Timestamp(0)
+  donation              String   @db.Text
+  attachment_url        String   @db.VarChar(200)
+  campaign              campaign @relation(fields: [campaign_id], references: [campaign_id], onUpdate: Restrict, map: "fk_donation_campaign")
+  user                  user     @relation(fields: [donor_id], references: [user_id], onUpdate: Restrict, map: "fk_donation_donor")
+  invite                invite   @relation(fields: [reffered_by_invite_id], references: [invite_id], onDelete: NoAction, map: "fk_donation_invite")
+
+  @@index([campaign_id], map: "fk_donation_campaign")
+  @@index([donor_id], map: "fk_donation_donor")
+  @@index([reffered_by_invite_id], map: "fk_donation_invite")
+}
+
+model invite {
+  invite_id          Int        @id @default(autoincrement())
+  campaign_id        Int
+  title              String     @db.VarChar(100)
+  created_at         DateTime   @default(now()) @db.Timestamp(0)
+  expires_at         DateTime?  @db.Timestamp(0)
+  maximum_invites    Int        @default(2)
+  created_by_user_id Int
+  campaign           campaign   @relation(fields: [campaign_id], references: [campaign_id], onDelete: Cascade, map: "fk_invite_campaign")
+  donation           donation[]
+
+  @@index([created_by_user_id], map: "fk_invite_admin")
+  @@index([campaign_id], map: "fk_invite_campaign")
+}
+
+model user {
+  user_id             Int        @id @default(autoincrement())
+  name                String     @db.VarChar(20)
+  last_name           String     @db.VarChar(20)
+  email               String     @unique(map: "email") @db.VarChar(100)
+  telephone           String     @db.VarChar(20)
+  location            String     @db.VarChar(20)
+  birthday            DateTime?  @db.Date
+  profile_picture_url String?    @db.VarChar(255)
+  hash_password       String?    @db.VarChar(100)
+  permissions         String?    @default("user") @db.VarChar(10)
+  donation            donation[]
+}
