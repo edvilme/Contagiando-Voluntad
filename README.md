@@ -1,2 +1,0 @@
-# Contagiando-Voluntad
-(Servicio Social)
