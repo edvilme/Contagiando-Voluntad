@@ -1,16 +1,23 @@
 <?php
-    include_once "../models/user.php";
+    include_once(__DIR__."/../models/user.php");
 
-    header("Access-Control-Allow-Origin: *");
-    header("Content-Type: application/json; charset=UTF-8");
-    header("Access-Control-Allow-Methods: GET, POST");
-    header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
-    
-    if($_SERVER['REQUEST_METHOD'] == 'GET'){
-        echo "Get user";
-    }
+    $user = User::getByID($_GET["u"]);
 
-    if($_SERVER['REQUEST_METHOD'] == 'POST'){
-        echo "Post user";
-    }
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User</title>
+</head>
+<body>
+    Hii
+    <br>
+    <?php
+        print_r($user);
+    ?>
+</body>
+</html>

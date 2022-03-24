@@ -12,17 +12,12 @@
 <body>
     <h1>Hello world</h1>
     <?php
-        $u = new User([
-            "name" => "Eduardo",
-            "last_name" => "Villalpando",
-            "email" => "eduardo.villalpando.mello@gmail.com", 
-            "telephone" => "+52 55 5105 3018", 
-            "location" => "Mexico City",
-            "birthdate" => "2000-06-16T00:00:00.000Z", 
-            "password_hash" => "contraseña", 
-            "creation_date" => "2022-03-07T15:38:00.000Z"
-        ]);
-        echo $u->name;
+        $rows = $query->table("User")->select()->get();
+        foreach ($rows as $key => $value) {
+            # code...
+            echo implode(", ", $value);
+            echo "<br>";
+        }
     ?>
 </body>
 </html>

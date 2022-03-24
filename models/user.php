@@ -1,7 +1,17 @@
 <?php
-    include "../database.php";
+    include_once(__DIR__.'/../database.php');
 
     class User{
+        public static function getByID($user_id){
+            global $query;
+            $data = $query->table("User")
+                ->select()
+                ->where("user_id", $user_id)
+                ->get();
+            return new User($data[0]);
+        }
+
+
         public ?int $user_id;
         public string $name;
         public ?string $last_name;
@@ -16,7 +26,6 @@
         public int $business_id;
 
         function __construct($data){
-            $this->user_id = $data["user_id"] ?? null;
             $this->name = $data["name"];
             $this->last_name = $data["last_name"];
             $this->email = $data["email"];
@@ -27,32 +36,21 @@
             $this->profile_picture_url = $data["profile_picture_url"] ?? null;
             $this->creation_date = $data["creation_date"] ?? date('c', time());
             $this->type = $data["type"] ?? "user";
-            $this->business_id = $data["business_id"] ?? -1;
+            
+            if(isset($data["user_id"])) $this->user_id = (int)$data["user_id"] ?? null;
+            if(isset($data["business_id"])) $this->business_id = (int)$data["business_id"] ?? -1;
         }
 
-        function upload_new(){
-            global $database;
-            $q = $database->prepare("
-                INSERT INTO User (name, last_name, email, tel, location, birthdate, password_hash, profile_picture_url, creation_date, type, business_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ");
-            $q->bind_param("ssssssssssi", $this->name, $this->last_name, $this->email, $this->tel, $this->location, $this->birthdate, $this->password_hash, $this->profile_picture_url, $this->creation_date, $this->type, $this->business_id);
-            $q->execute();
+        public function upload_new(){
+            global $query;
+            $query->table("User")
+                ->insert([
+                    (array)$this
+                ])
+                ->execute();
         }
 
-        function update(){
-            global $database;
-        }
+        
 
-        static function get_one($user_id){
-            global $database;
-            $q = $database->prepare("SELECT * FROM User WHERE user_id = ?");
-            $q->bind_param("i", $user_id);
-            $q->execute();
-
-            $result = $q->get_result();
-            $user = $result->fetch_assoc();
-            return new User($user);
-        }
     }
 ?>
