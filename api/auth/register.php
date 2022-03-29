@@ -9,6 +9,8 @@
         $user = new User($_POST);
         // Upload user to db
         $user->upload_new();
+        // Set session
+        $_SESSION["authenticated_user"] = serialize($user);
         // Echo success
         echo "Success";
     }

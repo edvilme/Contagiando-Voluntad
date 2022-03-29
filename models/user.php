@@ -1,5 +1,6 @@
 <?php
     include_once(__DIR__.'/../database.php');
+    include_once(__DIR__.'/donation.php');
 
     class User{
         public static function getByID($user_id){
@@ -8,9 +9,19 @@
                 ->select()
                 ->where("user_id", $user_id)
                 ->get();
-            return new User($data[0]);
+            if(isset($data[0])) return new User($data[0]);
+            else return null;
         }
-
+        public static function getByEmailAndPassword($email, $password){
+            global $query;
+            $data = $query->table("User")
+                ->select()
+                ->where("email", $email)
+                ->where("password_hash", $password)
+                ->get();
+            if(isset($data[0])) return new User($data[0]);
+            else return null;
+        }
 
         public ?int $user_id;
         public string $name;
@@ -50,7 +61,32 @@
                 ->execute();
         }
 
-        
+        public function update(){
+            global $query;
+            $query->table("User")
+                ->update()
+                    ->set("name", $this->name)
+                    ->set("last_name", $this->last_name)
+                    ->set("tel", $this->tel)
+                    ->set("location", $this->location)
+                    ->set("birthdate", $this->birthdate)
+                    ->set("password_hash", $this->password_hash)
+                    ->set("profile_picture_url", $this->profile_picture_url)
+                    ->set("type", $this->type) // TODO: revisar
+                    ->set("business_id", $this->business_id) // TODO: revisar
+                ->where("user_id", $this->user_id)
+                ->execute();
+        }
+
+        public function getDonations(){
+            return Donation::getAllByDonorID($this->user_id);
+        }
+
+        public function getVerifiedDonations(){
+            return array_filter(Donation::getAllByDonorID($this->user_id), function($row){
+                return $row->verified == true;
+            });
+        }
 
     }
 ?>
