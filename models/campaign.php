@@ -17,6 +17,16 @@ class Campaign {
     public bool $is_public;
     public int $created_by_user_id;
 
+    static function getAll(){
+        global $query;
+        $data = $query->table("Campaign")
+            ->select()
+            ->get();
+        return array_map(function($row){
+            return new Campaign($row);
+        }, $data);
+    }
+
     static function getByID($campaign_id){
         global $query;
         $data = $query->table("Campaign")
@@ -87,7 +97,8 @@ class Campaign {
     }
 
     public function addDonation($donation_data){
-        // TODO: check time period
+        // TODO: check time period 
+            // Solo los admins pueden registrar donaciones fuera del rango de tiempo
         $donation_data["campaign_id"] = $this->campaign_id;
         $donation = new Donation($donation_data);
         $donation->upload_new();
@@ -108,7 +119,7 @@ class Campaign {
 class CampaignItem {
     public ?int $campaign_item_id;
     public ?int $campaign_id;
-    public string $type;
+    public string $type; // item or recipient
     public string $name;
     public string $description;
     public string $photo_url;
@@ -135,11 +146,12 @@ class CampaignItem {
     }
 
     function __construct($data){
-        $this->campaign_item_id = (int)$data["campaign_item_id"] ?? null;
-        $this->campaign_id = (int)$data["campaign_id"] ?? null;
+        $this->campaign_item_id = (int)($data["campaign_item_id"] ?? null);
+        $this->campaign_id = (int)($data["campaign_id"] ?? null);
         $this->type = $data["type"] ?? "item";
         $this->description = $data["description"];
         $this->photo_url = $data["photo_url"];
+        $this->name = $data["name"];
     }
 
     public function upload_new(){

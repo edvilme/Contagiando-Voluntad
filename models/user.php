@@ -44,7 +44,7 @@
             $this->location = $data["location"];
             $this->birthdate = $data["birthdate"];
             $this->password_hash = $data["password_hash"];
-            $this->profile_picture_url = $data["profile_picture_url"] ?? null;
+            $this->profile_picture_url = $data["profile_picture_url"] ?? "";
             $this->creation_date = $data["creation_date"] ?? date('c', time());
             $this->type = $data["type"] ?? "user";
             
@@ -87,6 +87,6 @@
                 return $row->verified == true;
             });
         }
-
+        
     }
 ?>

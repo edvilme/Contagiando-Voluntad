@@ -36,16 +36,16 @@ class Invite {
     }
 
     function __construct($data){
-        $this->invite_id = (int)$data["invite_id"] ?? null;
         $this->campaign_id = (int)$data["campaign_id"] ?? null;
         $this->creation_date = $data["creation_date"] ?? date('c', time());
         $this->start_date = $data["start_date"] ?? date('c', time());
         $this->end_date = $data["start_date"] ?? null;
         $this->requires_verification = true; // TODO: revisar
-        $this->donation_limit = (int)$data["donation_limit"] ?? null;
         $this->created_by_user_id = (int)$data["created_by_user_id"] ?? -1;
+        $this->donation_limit = (int)$data["donation_limit"] ?? 0;
         $this->optional_password_hash = $data["optional_password_hash"];
         $this->name = $data["name"];
+        if(isset($data["invite_id"])) $this->invite_id = (int)$data["invite_id"] ?? null;
     }
 
     public function upload_new(){

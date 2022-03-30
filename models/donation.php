@@ -63,20 +63,20 @@ class Donation {
     }
 
     function __construct($data){
-        $this->donation_id = (int)$data["donation_id"] ?? null;
-        $this->campaign_id = (int)$data["campaign_id"] ?? null;
-        $this->invite_id = (int)$data["invite_id"] ?? -1;
-        $this->donor_id = (int)$data["donor_id"] ?? -1;
-        $this->recipient_id = (int)$data["recipient_id"] ?? -1;
-        $this->item_id = (int)$data["item_id"] ?? -1;
+        $this->donation_id = (int)($data["donation_id"] ?? null);
+        $this->campaign_id = (int)($data["campaign_id"] ?? null);
+        $this->invite_id = (int)($data["invite_id"] ?? -1);
+        $this->donor_id = (int)($data["donor_id"] ?? -1);
+        $this->recipient_id = (int)($data["recipient_id"] ?? -1);
+        $this->item_id = (int)($data["item_id"] ?? -1);
 
         $this->type = $data["type"] ?? "money";
-        $this->concept = $data["concept"];
-        $this->description = $data["description"];
-        $this->attachment_urls = $data["attachment_urls"];
+        $this->concept = $data["concept"] ?? "";
+        $this->description = $data["description"] ?? "";
+        $this->attachments_urls = $data["attachments_urls"] ?? "";
         $this->date = $data["date"] ?? date('c', time());
 
-        $this->validated = (bool)$data["is_validated"] ?? false;
+        $this->validated = (bool)($data["is_validated"] ?? false);
     }
 
     public function upload_new(){
@@ -97,7 +97,7 @@ class Donation {
                 ->set("type", $this->type)
                 ->set("concept", $this->concept)
                 ->set("description", $this->description)
-                ->set("attachment_urls", $this->attachment_urls)
+                ->set("attachments_urls", $this->attachments_urls)
                 ->set("date", $this->date)
                 ->set("validated", $this->validated)
             ->where("donation_id", $this->donation_id)

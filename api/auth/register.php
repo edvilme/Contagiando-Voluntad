@@ -12,6 +12,6 @@
         // Set session
         $_SESSION["authenticated_user"] = serialize($user);
         // Echo success
-        echo "Success";
+        die(json_encode($user));
     }
 ?>
