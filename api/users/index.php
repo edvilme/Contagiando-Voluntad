@@ -66,7 +66,9 @@
     /**
      * GET /api/users/:user_id/donations
      */
-    if($_SERVER['REQUEST_METHOD'] == "POST" && preg_match('#(?<=^\/api\/users\/)(\d+)(?=\/donations\/*$)#', $path, $matches)){
+    if($_SERVER['REQUEST_METHOD'] == "GET" && preg_match('#(?<=^\/api\/users\/)(\d+)(?=\/donations\/*$)#', $path, $matches)){
+        $user_id = $matches[1];
+
         if(isset($user_id)){
             // Find user
             $user = User::getByID($user_id);

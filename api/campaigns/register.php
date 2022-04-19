@@ -1,5 +1,5 @@
 <?php
-    include_once(__DIR__.'/../../models/campaign.php');
+    /* include_once(__DIR__.'/../../models/campaign.php');
     include_once(__DIR__.'/../../models/user.php');
     session_start();
     // Get user data
@@ -19,5 +19,5 @@
         $campaign->upload_new();
         // Echo success
         die(json_encode($campaign));
-    }
+    } */
 ?>

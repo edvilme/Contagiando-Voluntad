@@ -107,12 +107,19 @@
         // Campaign id
         $campaign_id = $matches[1];
         if(!isset($campaign_id)) die("Error");
+        // Get campaign
+        $campaign = Campaign::getByID($campaign_id);
+        if(!isset($campaign)) die("404 Campaign not found");
         // Generate donation
         $_POST["campaign_id"] = $campaign_id;
         $donation = new Donation($_POST);
         if(empty($donation->donor_id)) $donation->donor_id = $current_user->user_id;
-        // TODO: Check business logic for users vs admins
-        $donation->upload_new();
+        // Check if current user is admin
+        if($current_user->type == "user" && true /* Current date NOT within campaign dates */){
+            die("Error");
+        } else {
+            $donation->upload_new();
+        }
         die(json_encode($donation));
     }
 
@@ -128,8 +135,8 @@
 
 
     /**
-     * /api/campaigns/:id/catalog
-     * /api/campaigns/:id/recipients
+     * POST /api/campaigns/:id/catalog
+     * POST /api/campaigns/:id/recipients
      */
     if($_SERVER['REQUEST_METHOD'] == "POST" && preg_match('#(?<=^\/api\/campaigns\/)(\d+)(?=\/(catalog|recipients)\/?$)#', $path, $matches)){
         // Only if admin
@@ -149,8 +156,8 @@
     }
 
     /**
-     * /api/campaigns/:id/catalog
-     * /api/campaigns/:id/recipients
+     * GET /api/campaigns/:id/catalog
+     * GET /api/campaigns/:id/recipients
      */
     if($_SERVER['REQUEST_METHOD'] == "GET" && preg_match('#(?<=^\/api\/campaigns\/)(\d+)(?=\/(catalog|recipients)\/?$)#', $path, $matches)){
         // Campaign id
@@ -165,4 +172,31 @@
         }
     }
 
+    /**
+     * GET /api/campaigns/:campaign_id/catalog/:item_id
+     * GET /api/campaigns/:campaign_id/recipients/:item_d
+     */
+    if($_SERVER['REQUEST_METHOD'] == 'GET' && preg_match('#(?<=^\/api\/campaigns\/)(\d+)\/(catalog|recipient)\/(\d+)\/?$#', $path, $matches)){
+        // Campaign id, type and item id
+        $campaign_id = $matches[1];
+        $type = $matches[2];
+        $item_id = $matches[3];
+        $item = CampaignItem::getById($item_id);
+        if(!isset($item)) die("404 Item not found");
+        die(json_encode($item));
+    }
+
+    /**
+     * POST /api/campaigns/:campaign_id/catalog/:item_id/update
+     * POST /api/campaigns/:campaign_id/recipients/:item_id/update
+     */
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && preg_match('#(?<=^\/api\/campaigns\/)(\d+)\/(catalog|recipients)\/(\d+)(?=\/update\/?$)#', $path, $matches)){
+        // Campaign id, type and item id
+        $campaign_id = $matches[1];
+        $type = $matches[2];
+        $item_id = $matches[3];
+        $item = CampaignItem::getById($item_id);
+        // data
+        die("Implementing...")
+    }
 ?>
