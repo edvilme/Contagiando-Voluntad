@@ -197,6 +197,6 @@
         $item_id = $matches[3];
         $item = CampaignItem::getById($item_id);
         // data
-        die("Implementing...")
+        die("Implementing...");
     }
 ?>
