@@ -1,4 +1,5 @@
 <?php
+include_once(__DIR__.'/user.php');
 
 class Donation {
     public ?int $donation_id;
@@ -16,7 +17,7 @@ class Donation {
     public string $attachment_urls;
     public string $date;
 
-    public bool $is_validated;
+    public bool $validated;
 
 
     public static function getByID($donation_id){
@@ -65,7 +66,7 @@ class Donation {
     function __construct($data){
         $this->donation_id = (int)($data["donation_id"] ?? null);
         $this->campaign_id = (int)($data["campaign_id"] ?? null);
-        $this->invite_id = (int)($data["invite_id"] ?? -1);
+        $this->invite_id = (int)($data["invite_id"] ?? 0);
         $this->donor_id = (int)($data["donor_id"] ?? -1);
         $this->recipient_id = (int)($data["recipient_id"] ?? -1);
         $this->item_id = (int)($data["item_id"] ?? -1);
@@ -76,7 +77,7 @@ class Donation {
         $this->attachments_urls = $data["attachments_urls"] ?? "";
         $this->date = $data["date"] ?? date('c', time());
 
-        $this->validated = (bool)($data["is_validated"] ?? false);
+        $this->validated = (bool)($data["validated"] ?? false);
     }
 
     public function upload_new(){
@@ -102,6 +103,11 @@ class Donation {
                 ->set("validated", $this->validated)
             ->where("donation_id", $this->donation_id)
             ->execute();
+    }
+
+    public function getDonor(){
+        $user = User::getByID($this->donor_id);
+        return $user;
     }
 
 }

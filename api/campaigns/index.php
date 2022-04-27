@@ -133,8 +133,8 @@
         if(!isset($campaign)) die("404 Campaign not found");
         // Generate donation
         $_POST["campaign_id"] = $campaign_id;
+        if(!isset($_POST["donor_id"])) $_POST["donor_id"] = $current_user->user_id;
         $donation = new Donation($_POST);
-        if(empty($donation->donor_id)) $donation->donor_id = $current_user->user_id;
         // Check if current user is admin
         if($current_user->type == "user" && true /* Current date NOT within campaign dates */){
             die("Error");

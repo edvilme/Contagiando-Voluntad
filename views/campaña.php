@@ -6,10 +6,10 @@ $current_user = unserialize($_SESSION["authenticated_user"]);
 
 // Get campaign id
 $campaign_id = $_GET['id'];
-if(!isset($campaign_id)) return header('Location: ./404.php');
+if (!isset($campaign_id)) return header('Location: ./404.php');
 // Get campaign from ID
 $campaign = $campaign_id == 'new' ? new Campaign([]) : Campaign::getByID($campaign_id);
-if(!isset($campaign)) return header('Location: ./404.php');
+if (!isset($campaign)) return header('Location: ./404.php');
 
 $campaignUser = $campaign->getCreatorUser() ?? $current_user;
 $campaignItems = $campaign->getItems();
@@ -18,7 +18,8 @@ $campaignRecipients = array_filter($campaignItems, function ($item) {
 });
 $campaignCatalog = array_filter($campaignItems, function ($item) {
     return $item->type == 'catalog';
-})
+});
+$campaignDonations = $campaign->getDonations();
 ?>
 
 <!DOCTYPE html>
@@ -43,7 +44,7 @@ $campaignCatalog = array_filter($campaignItems, function ($item) {
 
 <body>
 
-    <form action="<?=  $campaign_id == 'new' ? '/api/campaigns/' : '/api/campaigns/'.$campaign_id.'/update' ?>" method="POST" class="container card">
+    <form action="<?= $campaign_id == 'new' ? '/api/campaigns/' : '/api/campaigns/' . $campaign_id . '/update' ?>" method="POST" class="container card">
         <h1>Datos de campaña</h1>
         <div class="mb-3 form-floating">
             <input type="text" name="name" id="name" class="form-control" value="<?php echo $campaign->name ?>">
@@ -117,15 +118,15 @@ $campaignCatalog = array_filter($campaignItems, function ($item) {
                         <div class="list-group-item d-flex align-items-center justify-content-between">
                             <?= $recipient->name; ?>
                             <div class="btn-group">
-                                <a href="" class="btn btn-info">Editar...</a>
-                                <a href="" class="btn btn-danger">Eliminar...</a>
+                                <button onclick="openRecipientDetails(<?= $recipient->campaign_item_id; ?>)" class="btn btn-info">Editar...</button>
+                                <button class="btn btn-danger">Eliminar...</button>
                             </div>
                         </div>
                     <?php endforeach; ?>
                 </div>
                 <hr>
                 <div class="mb-3">
-                    <button class="btn btn-primary">Agregar beneficiario...</button>
+                    <button class="btn btn-primary" onclick="openRecipientDetails('new')">Agregar beneficiario...</button>
                 </div>
             </div>
             <div class="tab-pane fade" id="catalog" role="tabpanel" aria-labelledby="catalog-tab">
@@ -135,15 +136,15 @@ $campaignCatalog = array_filter($campaignItems, function ($item) {
                         <div class="list-group-item d-flex align-items-center justify-content-between">
                             <?= $item->name; ?>
                             <div class="btn-group">
-                                <a href="" class="btn btn-info">Editar...</a>
-                                <a href="" class="btn btn-danger">Eliminar...</a>
+                                <button onclick="openCatalogDetails(<?= $item->campaign_item_id; ?>)" class="btn btn-info">Editar...</button>
+                                <button class="btn btn-danger">Eliminar...</button>
                             </div>
                         </div>
                     <?php endforeach; ?>
                 </div>
                 <hr>
                 <div class="mb-3">
-                    <button class="btn btn-primary">Agregar elemento de catálogo...</button>
+                    <button class="btn btn-primary" onclick="openCatalogDetails('new')">Agregar elemento de catálogo...</button>
                 </div>
             </div>
         </div>
@@ -153,7 +154,66 @@ $campaignCatalog = array_filter($campaignItems, function ($item) {
 
     <div class="card container">
         <h2>Donaciones</h2>
+        <div class="list-group list-group-flush">
+            <?php foreach ($campaignDonations as $key => $donation) : ?>
+                <?php $donationUser = $donation->getDonor(); ?>
+                <div class="list-group-item d-flex align-items-center justify-content-between">
+                    <div>
+                        <strong><?= $donation->concept; ?></strong>
+                        <br>
+                        <span> <?= $donation->description; ?> </span>
+                        <br>
+                        <span> -- <?= $donationUser->name . " " . $donationUser->last_name . " (" . $donationUser->email . ")"; ?></span>
+                    </div>
+                    <div class="btn-group">
+                        <button onclick="openDonationDetails(<?= $donation->donation_id; ?>)" class="btn btn-info">Editar...</button>
+                        <button class="btn btn-danger">Eliminar...</button>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <hr>
+        <div class="mb-3">
+            <button class="btn btn-primary" onclick="openDonationDetails('new')">Agregar donación...</button>
+        </div>
     </div>
+
+    <div id="details" class="modal">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <iframe src="" frameborder="0" width="100%" height="100%"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const idCampaign = "<?= $campaign_id; ?>";
+        let modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('details')) // Returns a Bootstrap modal instance
+
+        function openCatalogDetails(id) {
+            document.querySelector('#details .modal-title').innerHTML = "Detalles de elemento de catálogo";
+            document.querySelector('#details iframe').setAttribute('src', `/views/campaña-catalogo.php?id=${id}&campaign_id=${idCampaign}`)
+            modal.show();
+        }
+
+        function openRecipientDetails(id) {
+            document.querySelector('#details .modal-title').innerHTML = "Detalles de beneficiario";
+            document.querySelector('#details iframe').setAttribute('src', `/views/campaña-beneficiario.php?id=${id}&campaign_id=${idCampaign}`)
+            modal.show();
+        }
+
+        function openDonationDetails(id) {
+            document.querySelector('#details .modal-title').innerHTML = "Detalles de donación";
+            document.querySelector('#details iframe').setAttribute('src', `/views/donacion.php?id=${id}&campaign_id=${idCampaign}`)
+            modal.show();
+        }
+    </script>
 
 </body>
 
