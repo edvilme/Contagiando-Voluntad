@@ -3,6 +3,7 @@
 include_once(__DIR__.'/../database.php');
 include_once(__DIR__.'/donation.php');
 include_once(__DIR__.'/invite.php');
+include_once(__DIR__.'/user.php');
 
 
 class Campaign {
@@ -39,17 +40,17 @@ class Campaign {
 
 
     function __construct($data){
-        $this->name = $data["name"];
-        $this->description = $data["description"];
+        $this->name = $data["name"] ?? "";
+        $this->description = $data["description"] ?? "";
         $this->start_date = $data["start_date"] ?? null;
         $this->end_date = $data["end_date"] ?? null;
         $this->creation_date = $data["creation_date"] ??  date('c', time());
-        $this->promotional_picture_url = $data["promotional_picture_url"];
-        $this->badge_picture_url = $data["badge_picture_url"];
+        $this->promotional_picture_url = $data["promotional_picture_url"] ?? "";
+        $this->badge_picture_url = $data["badge_picture_url"] ?? "";
 
-        $this->is_public = (bool)$data["is_public"] ?? true;
-        $this->campaign_id = (int)$data["campaign_id"] ?? null;
-        $this->created_by_user_id = (int)$data["created_by_user_id"] ?? -1;
+        $this->is_public = (bool)($data["is_public"] ?? true);
+        $this->campaign_id = (int)($data["campaign_id"] ?? null);
+        $this->created_by_user_id = (int)($data["created_by_user_id"] ?? -1);
     }
 
     public function upload_new(){
@@ -114,6 +115,11 @@ class Campaign {
         $invite->upload_new();
     }
 
+    public function getCreatorUser(){
+        $user = User::getByID($this->created_by_user_id);
+        return $user;
+    }
+
 }
 
 class CampaignItem {
@@ -149,9 +155,9 @@ class CampaignItem {
         $this->campaign_item_id = (int)($data["campaign_item_id"] ?? null);
         $this->campaign_id = (int)($data["campaign_id"] ?? null);
         $this->type = $data["type"] ?? "item";
-        $this->description = $data["description"];
-        $this->photo_url = $data["photo_url"];
-        $this->name = $data["name"];
+        $this->description = $data["description"] ?? "";
+        $this->photo_url = $data["photo_url"] ?? "";
+        $this->name = $data["name"] ?? "";
     }
 
     public function upload_new(){

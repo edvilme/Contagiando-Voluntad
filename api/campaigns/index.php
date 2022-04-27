@@ -21,6 +21,27 @@
         ));
     }
 
+    /**
+     * POST /api/campaigns
+     */
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && preg_match('#^\/api\/campaigns(\/?)$#', $path, $matches)){
+        if(!isset($current_user) || $current_user->type == "user")
+            die("Error");
+        // If method is POST, process data
+        if($_SERVER['REQUEST_METHOD'] == "POST"){
+            // Make user_id = null
+            $_POST["campaign_id"] = null;
+            // Create user using POST data
+            $campaign = new Campaign($_POST);
+            // Assign to current user
+            $campaign->created_by_user_id = $current_user->user_id;
+            // Upload user to db
+            $campaign->upload_new();
+            // Echo success
+            die(json_encode($campaign));
+        }
+    }
+
 
     /**
      * /api/campaigns/bulkupload
@@ -196,7 +217,13 @@
         $type = $matches[2];
         $item_id = $matches[3];
         $item = CampaignItem::getById($item_id);
-        // data
-        die("Implementing...");
+        if(!isset($item)) die("404 Item not found");
+        // Update fields
+        if(!empty($_POST['name'])) $item->name = $_POST["name"];
+        if(!empty($_POST['description'])) $item->description = $_POST["description"];
+        if(!empty($_POST['photo_url'])) $item->photo_url = $_POST["photo_url"];
+        // Update
+        $item->update();
+        die(json_encode($item));
     }
 ?>

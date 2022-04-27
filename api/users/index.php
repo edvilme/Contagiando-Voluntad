@@ -3,7 +3,6 @@
     include_once(__DIR__.'/../../utils.php');
     session_start();
     
-
     $path = $_SERVER["REQUEST_URI"];
     $current_user = unserialize($_SESSION["authenticated_user"]);
  
@@ -19,6 +18,15 @@
             $user = new User($i);
             print_r($user);
         }
+    }
+
+    /**
+     * GET /api/users/search
+     */
+    if($_SERVER['REQUEST_METHOD'] == "GET" && preg_match('#(?<=^\/api\/users\/)(search)(?=\/*$)#', $path, $matches)){
+        $q = $_GET['q'];
+        $data = User::search($q);
+        print_r($data);
     }
 
 

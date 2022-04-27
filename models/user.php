@@ -1,4 +1,7 @@
 <?php
+
+use function PHPSTORM_META\map;
+
     include_once(__DIR__.'/../database.php');
     include_once(__DIR__.'/donation.php');
 
@@ -23,11 +26,23 @@
             else return null;
         }
 
+        public static function search($q){
+            global $query;
+            global $database;
+
+            $data = $database->query("CALL searchUsers('.$q.')");
+            /* return array_map(function($item){
+                return new User($item);
+            }, $data); */
+            return $data;
+
+        }
+
         public ?int $user_id;
         public string $name;
         public ?string $last_name;
         public string $email;
-        public ?string $telephone;
+        public ?string $tel;
         public ?string $location;
         public ?string $birthdate;
         public string $password_hash;
