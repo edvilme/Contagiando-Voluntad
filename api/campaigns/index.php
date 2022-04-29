@@ -153,7 +153,7 @@
         $donations = Donation::getAllByCampaignID($campaign_id);
         die(json_encode($donations));
     }
-
+    
 
     /**
      * POST /api/campaigns/:id/catalog
