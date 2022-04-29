@@ -1,219 +1,214 @@
 <?php
+$page_title = "Ver administradores - Control de usuarios";
+require_once  '../partials/header.php';
+
 include_once('../models/campaign.php');
-session_start();
-$current_user = unserialize($_SESSION["authenticated_user"]);
+include_once('../models/user.php');
+include_once('../models/donation.php');
 
-
-// Get campaign id
 $campaign_id = $_GET['id'];
-if (!isset($campaign_id)) return header('Location: ./404.php');
-// Get campaign from ID
-$campaign = $campaign_id == 'new' ? new Campaign([]) : Campaign::getByID($campaign_id);
-if (!isset($campaign)) return header('Location: ./404.php');
+$campaign = Campaign::getByID($campaign_id);
 
-$campaignUser = $campaign->getCreatorUser() ?? $current_user;
-$campaignItems = $campaign->getItems();
-$campaignRecipients = array_filter($campaignItems, function ($item) {
-    return $item->type == 'recipient';
-});
-$campaignCatalog = array_filter($campaignItems, function ($item) {
-    return $item->type == 'catalog';
-});
-$campaignDonations = $campaign->getDonations();
+$campaignUser;
+$campaignItems;
+$campaignRecipients;
+$campaignCatalog;
+$campaignDonations;
+
+if ($campaign != null) {
+	$campaignUser = $campaign->getCreatorUser() ?? $current_user;
+	$campaignItems = $campaign->getItems();
+	$campaignRecipients = array_filter($campaignItems, function ($item) {
+		return $item->type == 'recipient';
+	});
+	$campaignCatalog = array_filter($campaignItems, function ($item) {
+		return $item->type == 'catalog';
+	});
+	$campaignDonations = $campaign->getDonations();
+}
 ?>
+<!--contenido de la pagina-->
+<div class="page-content-wrapper">
+	<div class="page-content">
 
-<!DOCTYPE html>
-<html lang="en">
+		<div class="card">
+			<div class="card-body">
+				<div class="mb-3">
+					<h2>Buscar campaña por ID</h2>
+				</div>
+				<div class="row g-3">
+					<form class="input-group" action="" method="GET">
+						<input type="text" name="id" id="id" placeholder="ID" class="form-control" value="<?= $campaign_id ?>">
+						<input type="submit" value="Buscar" class="btn btn-primary">
+					</form>
+				</div>
+			</div>
+		</div>
+		<hr>
+		<?php if ($campaign != null) : ?>
+			<div class="card">
+				<div class="card-body">
+					<form action="/api/campaigns/<?= $campaign->campaign_id; ?>/update" method="POST" id="campaign-update-form">
+						<div class="mb-3 form-floating">
+							<input type="text" name="name" id="name" class="form-control" value="<?= $campaign->name; ?>">
+							<label for="name">Nombre de campaña</label>
+						</div>
+						<div class="mb-3 form-floating">
+							<textarea name="description" id="description" cols="30" rows="40" class="form-control"><?= $campaign->description; ?></textarea>
+							<label for="description">Descripción</label>
+						</div>
+						<div class="row">
+							<div class="col">
+								<div class="mb-3 form-floating">
+									<input type="date" name="start_date" id="start_date" class="form-control" value="<?= date("Y-m-d", strtotime($campaign->start_date)); ?>">
+									<label for="start_date">Fecha de inicio</label>
+								</div>
+							</div>
+							<div class="col">
+								<div class="mb-3 form-floating">
+									<input type="date" name="end_date" id="end_date" class="form-control" value="<?= date("Y-m-d", strtotime($campaign->end_date)); ?>">
+									<label for="end_date">Fecha de fin</label>
+								</div>
+							</div>
+						</div>
+						<hr>
+						<div class="mb-3">
+							<input type="submit" value="Registrar" class="btn btn-primary">
+						</div>
+					</form>
+				</div>
+			</div>
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campaña</title>
+			<div class="card">
+				<div class="card-body">
+					<div class="mb-3">
+						<h3>Donaciones</h3>
+					</div>
+					<div class="row">
+						<div class="col-auto">
+							<div class="mb-3">
+								<a href="./donacion-nueva.php?campaign_id=<?= $campaign->campaign_id ?>" class="btn btn-primary">Registrar donación...</a>
+							</div>
+						</div>
+						<div class="col-auto">
+							<div class="mb-3">
+								<a href="" class="btn btn-primary">Importar desde csv...</a>
+							</div>
+						</div>
+					</div>
+					<table class="table table-hover">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Donante</th>
+								<th>Concepto</th>
+								<th>Descripción</th>
+								<th>Fecha</th>
+								<th>Acciones</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach ($campaignDonations as $key => $donation) : ?>
+								<tr>
+									<td> <?= $donation->donation_id; ?> </td>
+									<td>
+										<?php $donor = User::getByID($donation->donor_id);?>
+										<a href="./usuario.php?user_email=<?= $donor->email ?>"><?= $donor->name." ".$donor->last_name." (".$donor->email.")" ?> </a>
+									</td>
+									<td> <?= $donation->concept; ?> </td>
+									<td> <?= $donation->description; ?> </td>
+									<td> <?= date("Y-m-d", strtotime($donation->date)); ?> </td>
+									<td> <a href="./donacion.php?id=<?= $donation->donation_id; ?>" class="btn btn-secondary">Editar...</a> </td>
+								</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				</div>
+			</div>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+			<div class="card">
+				<div class="card-body">
+					<ul class="nav nav-tabs" id="myTab" role="tablist">
+						<li class="nav-item" role="presentation">
+							<button class="nav-link active" id="recipients-tab" data-bs-toggle="tab" data-bs-target="#recipients" type="button" role="tab" aria-controls="recipients" aria-selected="true">Beneficiarios</button>
+						</li>
+						<li class="nav-item" role="presentation">
+							<button class="nav-link" id="catalog-tab" data-bs-toggle="tab" data-bs-target="#catalog" type="button" role="tab" aria-controls="catalog" aria-selected="false">Catálogo</button>
+						</li>
+					</ul>
+					<div class="tab-content" id="myTabContent">
+						<div class="tab-pane fade show active" id="recipients" role="tabpanel" aria-labelledby="recipients-tab">
+							<table class="table table-hover">
+								<thead>
+									<tr>
+										<th>ID</th>
+										<th>Nombre</th>
+										<th>Descripción</th>
+										<th>Tipo</th>
+										<th>Acciones</th>
+									</tr>
+								</thead>
+								<tbody>
+									<?php foreach ($campaignRecipients as $key => $item) : ?>
+										<tr>
+											<td> <?= $item->campaign_item_id; ?></td>
+											<td> <?= $item->name; ?> </td>
+											<td> <?= $item->description; ?> </td>
+											<td> Beneficiario </td>
+											<td> <button class="btn btn-secondary">Editar...</button> </td>
+										</tr>
+									<?php endforeach; ?>
+								</tbody>
+							</table>
+						</div>
+						<div class="tab-pane fade" id="catalog" role="tabpanel" aria-labelledby="catalog-tab">
+							<table class="table table-hover">
+								<thead>
+									<tr>
+										<th>ID</th>
+										<th>Nombre</th>
+										<th>Descripción</th>
+										<th>Tipo</th>
+										<th>Acciones</th>
+									</tr>
+								</thead>
+								<tbody>
+									<?php foreach ($campaignCatalog as $key => $item) : ?>
+										<tr>
+											<td> <?= $item->campaign_item_id; ?></td>
+											<td> <?= $item->name; ?> </td>
+											<td> <?= $item->description; ?> </td>
+											<td> Catálogo </td>
+											<td> <button class="btn btn-secondary">Editar...</button> </td>
+										</tr>
+									<?php endforeach; ?>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		<?php endif; ?>
 
-    <style>
-        #recipients>.card {
-            width: 400px;
-        }
-    </style>
+	</div>
+</div>
 
-</head>
 
-<body>
 
-    <form action="<?= $campaign_id == 'new' ? '/api/campaigns/' : '/api/campaigns/' . $campaign_id . '/update' ?>" method="POST" class="container card">
-        <h1>Datos de campaña</h1>
-        <div class="mb-3 form-floating">
-            <input type="text" name="name" id="name" class="form-control" value="<?php echo $campaign->name ?>">
-            <label for="name">Nombre de campaña</label>
-        </div>
 
-        <div class="mb-3 form-floating">
-            <textarea name="description" id="description" class="form-control"><?php echo $campaign->description ?></textarea>
-            <label for="description">Descripción de la campaña</label>
-        </div>
+<!--/contenido de la pagina-->
+<?php
+include_once '../partials/footer.php';
+?>
+<script src="../js/form-control.js"></script>
+<script>
+	document.querySelector('#campaign-update-form').addEventListener('submit', async e => {
+		e.preventDefault();
+		const response = await submitFormAsync(document.querySelector('#campaign-update-form'));
+		window.location.reload();
+	})
+</script>
 
-        <div class="row">
-            <div class="col mb-3 form-floating">
-                <input type="date" name="start-date" id="start-date" class="form-control" value="<?= date("Y-m-d", strtotime($campaign->start_date)); ?>">
-                <label for="start-date">Fecha de inicio</label>
-            </div>
-            <div class="col mb-3 form-floating">
-                <input type="date" name="end-date" id="end-date" class="form-control" value="<?= date("Y-m-d", strtotime($campaign->end_date)); ?>">
-                <label for="end-date">Fecha de fin</label>
-            </div>
-        </div>
-        <hr>
-        <div class="mb-3">
-            <input type="submit" value="Enviar" class="btn btn-primary">
-        </div>
-    </form>
-    <br>
-
-    <div class="card container">
-        <h1>Encargado de campaña</h1>
-        <div class="row">
-            <div class="col">
-                <div class="mb-3 form-floating">
-                    <input disabled class="form-control" value="<?= $campaignUser->name; ?>">
-                    <label>Nombre</label>
-                </div>
-            </div>
-            <div class="col">
-                <div class="mb-3 form-floating">
-                    <input disabled class="form-control" value="<?= $campaignUser->last_name; ?>">
-                    <label>Apellido(s)</label>
-                </div>
-            </div>
-        </div>
-        <div class="mb-3 form-floating">
-            <input type="email" name="campaignUserEmail" id="campaignUserEmail" class="form-control" value="<?= $campaignUser->email; ?>">
-            <label for="campaignUserEmail">Correo electrónico</label>
-        </div>
-        <div class="mb-3 form-floating">
-            <input disabled class="form-control" value="<?= $campaignUser->tel; ?>">
-            <label for="campaignUserEmail">Número telefónico</label>
-        </div>
-    </div>
-
-    <br>
-
-    <div class="card container">
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="recipients-tab" data-bs-toggle="tab" data-bs-target="#recipients" type="button" role="tab" aria-controls="recipients" aria-selected="true">Beneficiarios</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="catalog-tab" data-bs-toggle="tab" data-bs-target="#catalog" type="button" role="tab" aria-controls="catalog" aria-selected="false">Catálogo</button>
-            </li>
-        </ul>
-        <div class="tab-content" id="myTabContent">
-            <div class="tab-pane fade show active" id="recipients" role="tabpanel" aria-labelledby="recipients-tab">
-
-                <div class="list-group list-group-flush">
-                    <?php foreach ($campaignRecipients as $key => $recipient) : ?>
-                        <div class="list-group-item d-flex align-items-center justify-content-between">
-                            <?= $recipient->name; ?>
-                            <div class="btn-group">
-                                <button onclick="openRecipientDetails(<?= $recipient->campaign_item_id; ?>)" class="btn btn-info">Editar...</button>
-                                <button class="btn btn-danger">Eliminar...</button>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-                <hr>
-                <div class="mb-3">
-                    <button class="btn btn-primary" onclick="openRecipientDetails('new')">Agregar beneficiario...</button>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="catalog" role="tabpanel" aria-labelledby="catalog-tab">
-
-                <div class="list-group list-group-flush">
-                    <?php foreach ($campaignCatalog as $key => $item) : ?>
-                        <div class="list-group-item d-flex align-items-center justify-content-between">
-                            <?= $item->name; ?>
-                            <div class="btn-group">
-                                <button onclick="openCatalogDetails(<?= $item->campaign_item_id; ?>)" class="btn btn-info">Editar...</button>
-                                <button class="btn btn-danger">Eliminar...</button>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-                <hr>
-                <div class="mb-3">
-                    <button class="btn btn-primary" onclick="openCatalogDetails('new')">Agregar elemento de catálogo...</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <br>
-
-    <div class="card container">
-        <h2>Donaciones</h2>
-        <div class="list-group list-group-flush">
-            <?php foreach ($campaignDonations as $key => $donation) : ?>
-                <?php $donationUser = $donation->getDonor(); ?>
-                <div class="list-group-item d-flex align-items-center justify-content-between">
-                    <div>
-                        <strong><?= $donation->concept; ?></strong>
-                        <br>
-                        <span> <?= $donation->description; ?> </span>
-                        <br>
-                        <span> -- <?= $donationUser->name . " " . $donationUser->last_name . " (" . $donationUser->email . ")"; ?></span>
-                    </div>
-                    <div class="btn-group">
-                        <button onclick="openDonationDetails(<?= $donation->donation_id; ?>)" class="btn btn-info">Editar...</button>
-                        <button class="btn btn-danger">Eliminar...</button>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-        <hr>
-        <div class="mb-3">
-            <button class="btn btn-primary" onclick="openDonationDetails('new')">Agregar donación...</button>
-        </div>
-    </div>
-
-    <div id="details" class="modal">
-        <div class="modal-dialog modal-fullscreen">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <iframe src="" frameborder="0" width="100%" height="100%"></iframe>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const idCampaign = "<?= $campaign_id; ?>";
-        let modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('details')) // Returns a Bootstrap modal instance
-
-        function openCatalogDetails(id) {
-            document.querySelector('#details .modal-title').innerHTML = "Detalles de elemento de catálogo";
-            document.querySelector('#details iframe').setAttribute('src', `/views/campaña-catalogo.php?id=${id}&campaign_id=${idCampaign}`)
-            modal.show();
-        }
-
-        function openRecipientDetails(id) {
-            document.querySelector('#details .modal-title').innerHTML = "Detalles de beneficiario";
-            document.querySelector('#details iframe').setAttribute('src', `/views/campaña-beneficiario.php?id=${id}&campaign_id=${idCampaign}`)
-            modal.show();
-        }
-
-        function openDonationDetails(id) {
-            document.querySelector('#details .modal-title').innerHTML = "Detalles de donación";
-            document.querySelector('#details iframe').setAttribute('src', `/views/donacion.php?id=${id}&campaign_id=${idCampaign}`)
-            modal.show();
-        }
-    </script>
 
 </body>
 

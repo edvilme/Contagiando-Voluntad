@@ -29,6 +29,17 @@
         print_r($data);
     }
 
+    /**
+     * POST /api/users/new
+     */
+    if($_SERVER['REQUEST_METHOD'] == "POST" && preg_match('#(?<=^\/api\/users\/)(new)(?=\/*$)#', $path, $matches)){
+        // Only admin users can create new admins
+        if(!isset($_POST['type']) || $_POST['type'] == 'admin' && (!isset($current_user) || $current_user->type != 'admin'))
+            $_POST['type'] = 'user';
+        $user = new User($_POST);
+        $user->upload_new();
+        die(json_encode($user));
+    }
 
     /**
      * GET /api/users/:user_id
@@ -48,7 +59,7 @@
     if($_SERVER['REQUEST_METHOD'] == "POST" && preg_match('#(?<=^\/api\/users\/)(\d+)(?=\/update\/*$)#', $path, $matches)){
         $user_id = $matches[1];
         // Only if admin or same user
-        if(!isset($current_user) || $current_user->user_id != $user_id || $current_user->type == "user")
+        if(!isset($current_user) || ($current_user->user_id != $user_id && $current_user->type == "user"))
             die("Error Unauthorized");
         if(isset($user_id)){
             // Find user
