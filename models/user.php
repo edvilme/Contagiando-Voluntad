@@ -6,6 +6,17 @@ use function PHPSTORM_META\map;
     include_once(__DIR__.'/donation.php');
 
     class User{
+
+        public static function getAll(){
+            global $query;
+            $data = $query->table("User")
+                ->select()
+                ->get();
+            return array_map(function($user){
+                return new User($user);
+            }, $data);
+        }
+
         public static function getByID($user_id){
             global $query;
             $data = $query->table("User")
@@ -15,6 +26,17 @@ use function PHPSTORM_META\map;
             if(isset($data[0])) return new User($data[0]);
             else return null;
         }
+
+        public static function getByEmail($email){
+            global $query;
+            $data = $query->table("User")
+                ->select()
+                ->where("email", $email)
+                ->get();
+            if(isset($data[0])) return new User($data[0]);
+            else return null;
+        }
+
         public static function getByEmailAndPassword($email, $password){
             global $query;
             $data = $query->table("User")
@@ -63,8 +85,8 @@ use function PHPSTORM_META\map;
             $this->creation_date = $data["creation_date"] ?? date('c', time());
             $this->type = $data["type"] ?? "user";
             
-            if(isset($data["user_id"])) $this->user_id = (int)$data["user_id"] ?? null;
-            if(isset($data["business_id"])) $this->business_id = (int)$data["business_id"] ?? -1;
+            if(isset($data["user_id"])) $this->user_id = (int)($data["user_id"] ?? null);
+            if(isset($data["business_id"])) $this->business_id = (int)($data["business_id"] ?? -1);
         }
 
         public function upload_new(){
@@ -88,7 +110,6 @@ use function PHPSTORM_META\map;
                     ->set("password_hash", $this->password_hash)
                     ->set("profile_picture_url", $this->profile_picture_url)
                     ->set("type", $this->type) // TODO: revisar
-                    ->set("business_id", $this->business_id) // TODO: revisar
                 ->where("user_id", $this->user_id)
                 ->execute();
         }

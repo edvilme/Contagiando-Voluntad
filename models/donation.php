@@ -1,5 +1,6 @@
 <?php
 include_once(__DIR__.'/user.php');
+include_once(__DIR__.'/campaign.php');
 
 class Donation {
     public ?int $donation_id;
@@ -19,6 +20,15 @@ class Donation {
 
     public bool $validated;
 
+    public static function getAll(){
+        global $query;
+        $data = $query->table("Donation")
+            ->select()
+            ->get();
+        return array_map(function($donation){
+            return new Donation($donation);
+        }, $data);
+    }
 
     public static function getByID($donation_id){
         global $query;
@@ -108,6 +118,15 @@ class Donation {
     public function getDonor(){
         $user = User::getByID($this->donor_id);
         return $user;
+    }
+
+    public function getCampaign(){
+        $campaign = Campaign::getByID($this->campaign_id);
+        return $campaign;
+    }
+
+    public function sendConfirmationEmail(){
+        
     }
 
 }
