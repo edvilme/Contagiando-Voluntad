@@ -5,6 +5,7 @@ require_once  '../partials/header.php';
 include_once('../models/campaign.php');
 include_once('../models/user.php');
 include_once('../models/donation.php');
+
 ?>
 <!--contenido de la pagina-->
 <div class="page-content-wrapper">
@@ -27,28 +28,30 @@ include_once('../models/donation.php');
 					</tr>
 				</thead>
 				<tbody>
-					<?php 
-						$allDonations = Donation::getAll();
-						foreach ($allDonations as $key => $donation):
+					<?php
+					$allDonations = Donation::getAll();
+					foreach ($allDonations as $key => $donation) :
 					?>
 						<tr>
 							<td> <?= $donation->donation_id; ?> </td>
-							<td> 
-								<?php 
-									$donationCampaign = $donation->getCampaign();
-									return "(".$donationCampaign->campaign_id.") ".$donationCampaign->name;
+							<td>
+								<?php
+								$donationCampaign = $donation->getCampaign();
+								echo "(" . $donationCampaign->campaign_id . ") " . $donationCampaign->name;
 								?>
 							</td>
 							<td>
 								<?php
-									$donationDonor = $donation->getDonor();
-									return $donationDonor->name." ".$donationDonor->last_name." (".$donationDonor->email.")";
+								$donationDonor = $donation->getDonor();
+								echo $donationDonor->name . " " . $donationDonor->last_name . " (" . $donationDonor->email . ")";
 								?>
 							</td>
 							<td><?= $donation->concept; ?></td>
 							<td><?= $donation->description; ?></td>
 							<td><?= date("Y-m-d", strtotime($donation->date)); ?></td>
-							<td> <a href="./donacion.php?id=<?=$campaign->campaign_id;?>" class="btn btn-secondary btn-sm">Editar...</a> </td>
+							<td> 
+								<a href="./donacion.php?id=<?= $donation->donation_id; ?>" class="btn btn-secondary btn-sm">Editar...</a>
+							</td>
 						</tr>
 					<?php endforeach; ?>
 				</tbody>

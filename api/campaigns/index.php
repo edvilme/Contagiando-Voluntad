@@ -139,7 +139,11 @@
         if($current_user->type == "user" && true /* Current date NOT within campaign dates */){
             die("Error");
         } else {
-            $donation->upload_new();
+            try {
+                $donation->upload_new();
+                $donation->sendConfirmationEmail();
+            } catch (\Throwable $th) {
+            }
         }
         die(json_encode($donation));
     }
