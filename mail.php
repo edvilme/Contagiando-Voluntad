@@ -8,10 +8,10 @@
             //Server settings
             $mail->SMTPDebug = \PHPMailer\PHPMailer\SMTP::DEBUG_SERVER;                      //Enable verbose debug output
             $mail->isSMTP();                                            //Send using SMTP
-            $mail->Host       = 'mail.contagiandovoluntad.org';                     //Set the SMTP server to send through
+            $mail->Host       = 'smtp.gmail.com';                     //Set the SMTP server to send through
             $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-            $mail->Username   = 'donaciones@contagiandovoluntad.org';                     //SMTP username
-            $mail->Password   = 'm3p9V1hH7t.';                               //SMTP password
+            $mail->Username   = 'certificados.contagiando@gmail.com';                     //SMTP username
+            $mail->Password   = 'Certificados_2$';                               //SMTP password
             $mail->SMTPSecure = 'ssl';            //Enable implicit TLS encryption
             $mail->Port       = 465;   
     } catch(e){
@@ -31,11 +31,4 @@
             echo "Mailer Error: " . $mail->ErrorInfo;
         }
     }
-
-    sendMail([
-        "recipient_address"=>"donaciones@contagiandovoluntad.org", 
-        "recipient_name"=>"Eduardo Villalpando", 
-        "subject"=>"Hola, esto es un test desde PHP", 
-        "body"=>"Hola, esto es un test desde PHP. Esto es un test desde PHP. Esto es un test desde PHP"
-    ]);
 ?>

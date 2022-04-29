@@ -3,14 +3,14 @@ include_once(__DIR__.'/../database.php');
 include_once(__DIR__.'/donation.php');
 
 class Invite {
-    public ?int $invite_id;
-    public ?int $campaign_id;
+    public int $invite_id;
+    public int $campaign_id;
     public string $creation_date;
     public string $start_date;
-    public ?string $end_date;
+    public string $end_date;
     public bool $requires_verification;
-    public ?string $optional_password_hash;
-    public ?int $donation_limit;
+    public string $optional_password_hash;
+    public int $donation_limit;
     public int $created_by_user_id;
     public string $name;
 

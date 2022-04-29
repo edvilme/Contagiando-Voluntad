@@ -1,16 +1,17 @@
 <?php
 include_once(__DIR__.'/user.php');
 include_once(__DIR__.'/campaign.php');
+include_once(__DIR__.'/../mail.php');
 
 class Donation {
-    public ?int $donation_id;
+    public int $donation_id;
 
-    public ?int $campaign_id;
-    public ?int $invite_id;
-    public ?int $donor_id;
+    public int $campaign_id;
+    public int $invite_id;
+    public int $donor_id;
 
-    public ?int $recipient_id;
-    public ?int $item_id;
+    public int $recipient_id;
+    public int $item_id;
 
     public string $type;
     public string $concept;
@@ -126,7 +127,13 @@ class Donation {
     }
 
     public function sendConfirmationEmail(){
-        
+        $donor = $this->getDonor();
+        sendMail([
+            "recipient_address" => $donor->email,
+            "recipient_name" => $donor->name." ".$donor->last_name, 
+            "subject" => "Esto es una prueba", 
+            "body" => "Hola, hiciste una donación. Muy bien"
+        ]);
     }
 
 }

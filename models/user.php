@@ -60,15 +60,15 @@ use function PHPSTORM_META\map;
 
         }
 
-        public ?int $user_id;
+        public int $user_id;
         public string $name;
-        public ?string $last_name;
+        public string $last_name;
         public string $email;
-        public ?string $tel;
-        public ?string $location;
-        public ?string $birthdate;
+        public string $tel;
+        public string $location;
+        public string $birthdate;
         public string $password_hash;
-        public ?string $profile_picture_url;
+        public string $profile_picture_url;
         public string $creation_date;
         public string $type;
         public int $business_id;
