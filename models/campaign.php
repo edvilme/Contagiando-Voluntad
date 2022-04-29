@@ -7,7 +7,7 @@ include_once(__DIR__.'/user.php');
 
 
 class Campaign {
-    public ?int $campaign_id;
+    public int $campaign_id;
     public string $name;
     public string $description;
     public ?string $start_date;

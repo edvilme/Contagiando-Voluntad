@@ -4,14 +4,14 @@ include_once(__DIR__.'/campaign.php');
 include_once(__DIR__.'/../mail.php');
 
 class Donation {
-    public ?int $donation_id;
+    public int $donation_id;
 
-    public ?int $campaign_id;
-    public ?int $invite_id;
-    public ?int $donor_id;
+    public int $campaign_id;
+    public int $invite_id;
+    public int $donor_id;
 
-    public ?int $recipient_id;
-    public ?int $item_id;
+    public int $recipient_id;
+    public int $item_id;
 
     public string $type;
     public string $concept;
